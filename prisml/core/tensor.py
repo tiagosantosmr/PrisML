@@ -31,7 +31,8 @@ class Tensor:
             self.data = np.array(data, dtype=np.float32)
 
     def __repr__(self): # print(t1)
-        return f"Tensor data={self.data} requires_grad={self.requires_grad}"
+        #TODO: customize to print self.data with spaces before each line (to match "Tensor data = ") so as to make it more readable
+        return f"Tensor data = {self.data}   requires_grad={self.requires_grad}"
 
     def __add__(self, other): # t1 + t2
         if isinstance(other, Tensor):
@@ -52,6 +53,16 @@ class Tensor:
         if isinstance(other, Tensor):
             return Tensor(self.data / other.data)
         return Tensor(self.data / other)
+
+    def __matmul__(self, other): # t1 @ t2 matrix multiplication
+        #for 0-D, just multiples the values, same as __mul__
+        #for 1-D, dot product of both arrays
+        #for 2-D, must match shapes (n, k) @ (k, m) -> (n, m)
+        #for N-D, tensors of shapes (..., n, k) @ (..., k, m) -> (..., n, m) as long as (...) matches or broadcasts
+        if isinstance(other, Tensor):
+            return Tensor(self.data @ other.data)
+        return Tensor(self.data @ other)
+
 
     @property
     def shape(self):

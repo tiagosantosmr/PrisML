@@ -231,3 +231,72 @@ class TestTensorDivision:
         with pytest.raises(ValueError):
             result = t1 / t2
     
+class TestTensorMatrixMultiplication:
+    """Test Tensor Matrix Multiplication"""
+
+    def test_matmul_vector_dot(self):
+        # (3,) @ (3,) -> () because it does the dot product between both arrays and produces a scalar value
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([4, 5, 6])
+        
+        result = t1 @ t2
+        
+        assert result.shape == () 
+        assert result.data == 32
+
+    def test_matmul_standard(self):
+        # (2, 3) @ (3, 2) -> (2, 2)
+        t1 = Tensor([[1, 2, 3], [4, 5, 6]])
+        t2 = Tensor([[7, 8], [9, 10], [11, 12]])
+        
+        result = t1 @ t2
+        
+        assert result.shape == (2, 2)
+        assert np.allclose(result.data, np.array([[58, 64], [139, 154]]))
+
+    def test_matmul_matrix_vector(self):
+        # (2, 3) @ (3,) -> (2,)
+        t1 = Tensor([[1, 2, 3], [4, 5, 6]])
+        t2 = Tensor([1, 0, 1])
+        
+        result = t1 @ t2
+        
+        assert result.shape == (2,)
+        assert np.allclose(result.data, np.array([4, 10]))
+
+    def test_matmul_batch_4d_with_broadcasting(self):
+        # (1, 3, 4, 5) @ (2, 1, 5, 2) -> (2, 3, 4, 2)
+        # The last two shape dims (4, 5) and (5, 2) already match the rule (..., n, k) @ (..., k, m).
+        # Then, 1 is broadcast to match 2, for the first shape dim
+        # And finally, 1 is broadcast to match 3, for the second shape dim
+        
+        t1 = Tensor(np.random.randn(1, 3, 4, 5))
+        t2 = Tensor(np.random.randn(2, 1, 5, 2))
+        
+        result = t1 @ t2
+        
+        # Shape calculation:
+        # (1, 3) broadcast with (2, 1) -> (2, 3)
+        # (4, 5) @ (5, 2) -> (4, 2)
+        assert result.shape == (2, 3, 4, 2)
+        
+        # Verify against NumPy's
+        expected = np.matmul(t1.data, t2.data)
+        assert np.allclose(result.data, expected)
+
+    def test_matmul_batch_4d_single_matrix_broadcast(self):
+        # (2, 3, 4, 5) @ (5, 2) -> (2, 3, 4, 2)
+        # The (5, 2) matrix gets broadcast to (1, 1, 5, 2) then (2, 3, 5, 2)
+
+        np.random.seed(42) 
+        
+        t1 = Tensor(np.random.randn(2, 3, 4, 5))
+        t2 = Tensor(np.eye(5, 2))
+        
+        result = t1 @ t2
+        
+        assert result.shape == (2, 3, 4, 2)
+        
+        # Verify against NumPy
+        expected = np.matmul(t1.data, t2.data)
+        assert np.allclose(result.data, expected)
