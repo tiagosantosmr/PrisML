@@ -1,0 +1,233 @@
+import pytest
+import numpy as np
+from prisml import Tensor
+
+FLOAT_ARRAY = np.array([1.5, -2.0, 3.14159, 0.0])
+
+class TestTensorCreation:
+    """Test Tensor Initialization."""
+
+    def test_creation_from_scalar(self):
+        t = Tensor(1)
+        assert t.data.shape == ()
+        assert t.data.dtype == np.float32
+        assert t.data == 1
+
+    def test_creation_from_int_list(self):
+        t = Tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
+        assert t.data.shape == (10, )
+        assert t.data.dtype == np.float32
+        assert np.array_equal(t.data, np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]))
+
+    def test_creation_from_float_list(self):
+        t = Tensor(FLOAT_ARRAY)
+        assert t.data.shape == (4,)
+        #use allclose to compare floats since array_equal fails with floating point precision issues
+        assert np.allclose(t.data, FLOAT_ARRAY)
+        assert t.data.dtype == np.float32
+
+    def test_creation_from_tensor(self):
+        t1 = Tensor(FLOAT_ARRAY)
+        t2 = Tensor(t1)
+        assert t2.data.shape == (4,)
+        assert np.allclose(t2.data, FLOAT_ARRAY)
+        assert t2.data.dtype == np.float32
+        assert t2.requires_grad == t1.requires_grad
+
+
+
+class TestTensorShape:
+    """Test Tensor Shape Property."""
+
+    def test_scalar_shape(self):
+        t = Tensor(1)
+        assert t.shape == ()
+
+    def test_1d_array_shape(self):
+        t = Tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
+        assert t.shape == (10,)
+
+    def test_2d_matrix_array_shape(self):
+        t = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        assert t.shape == (3, 3)
+
+    def test_3d_matrx_array_shape(self):
+        t = Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+        assert t.shape == (1, 3, 3)
+
+class TestTensorAddition:
+    """Test Tensor Addition"""
+
+    def test_scalar_tensor_addition(self):
+        t1 = Tensor(1)
+        t2 = Tensor(2)
+        result = t1 + t2
+        assert result.shape == ()
+        assert result.data == 3
+
+    def test_1d_array_tensor_addition(self):
+        t1 = Tensor([1, 1, 1, 1, 1])
+        t2 = Tensor([0, 1, 2, 3, 4])
+        result = t1 + t2
+        assert result.shape == (5, )
+        assert np.array_equal(result.data, np.array([1, 2, 3, 4, 5]))
+
+    def test_1d_float_array_tensor_addition(self):
+        t1 = Tensor(FLOAT_ARRAY)
+        t2 = Tensor(2 * FLOAT_ARRAY)
+        result = t1 + t2
+        assert result.shape == (4, )
+        assert np.allclose(result.data, np.array(3 * FLOAT_ARRAY))
+
+    def test_2d_array_tensor_addition(self):
+        t1 = Tensor([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+        t2 = Tensor([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+        result = t1 + t2
+        assert result.shape == (3, 3)
+        assert np.array_equal(result.data, np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
+
+    def test_3d_array_tensor_addition(self):
+        t1 = Tensor([[[1, 1, 1], [1, 1, 1], [1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]]])
+        t2 = Tensor([[[0, 1, 2], [3, 4, 5], [6, 7, 8]], [[0, 1, 2], [3, 4, 5], [6, 7, 8]], [[0, 1, 2], [3, 4, 5], [6, 7, 8]]])  
+        result = t1 + t2
+        assert result.shape == (3, 3, 3)
+        assert np.array_equal(result.data, np.array([[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]]))
+
+    def test_scalar_plus_array(self):
+        t1 = Tensor(1)
+        t2 = Tensor([1, 2, 4])
+        result = t1 + t2
+        assert result.shape == (3,)
+        assert np.array_equal(result.data, np.array([2, 3, 5]))
+
+    def test_addition_broadcast_compatible_shapes(self):
+        t1 = Tensor([1, 2])
+        t2 = Tensor([[10, 20], [30, 40]])
+        result = t1 + t2
+        assert result.shape == (2, 2)
+        assert np.array_equal(result.data, np.array([[11, 22], [31, 42]]))
+
+    def test_addition_broadcast_incompatible_shapes(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([[10, 20], [30, 40]])
+        with pytest.raises(ValueError):
+            result = t1 + t2
+
+class TestTensorSubtraction:
+    """Test Tensor Subtraction"""
+
+    def test_scalar_tensor_subtraction(self):
+        t1 = Tensor(10)
+        t2 = Tensor(2)
+        result = t1 - t2
+        assert result.shape == ()
+        assert result.data == 8
+
+    def test_1d_array_tensor_subtraction(self):
+        t1 = Tensor([10, 10, 10, 10, 10])
+        t2 = Tensor([0, 1, 2, 3, 4])
+        result = t1 - t2
+        assert result.shape == (5, )
+        assert np.array_equal(result.data, np.array([10, 9, 8, 7, 6]))
+
+    def test_1d_float_array_tensor_subtraction(self):
+        t1 = Tensor(3 * FLOAT_ARRAY)
+        t2 = Tensor(FLOAT_ARRAY)
+        result = t1 - t2
+        assert result.shape == (4, )
+        assert np.allclose(result.data, np.array(2 * FLOAT_ARRAY))
+
+    def test_2d_array_tensor_subtraction(self):
+        t1 = Tensor([[10, 10, 10], [10, 10, 10], [10, 10, 10]])
+        t2 = Tensor([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+        result = t1 - t2
+        assert result.shape == (3, 3)
+        assert np.array_equal(result.data, np.array([[10, 9, 8], [7, 6, 5], [4, 3, 2]]))
+
+    def test_3d_array_tensor_subtraction(self):
+        t1 = Tensor([[[1, 1, 1], [1, 1, 1], [1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]]])
+        t2 = Tensor([[[0, 1, 2], [3, 4, 5], [6, 7, 8]], [[0, 1, 2], [3, 4, 5], [6, 7, 8]], [[0, 1, 2], [3, 4, 5], [6, 7, 8]]])  
+        result = t1 - t2
+        assert result.shape == (3, 3, 3)
+        assert np.array_equal(result.data, np.array([[[1, 0, -1], [-2, -3, -4], [-5, -6, -7]], [[1, 0, -1], [-2, -3, -4], [-5, -6, -7]], [[1, 0, -1], [-2, -3, -4], [-5, -6, -7]]]))
+
+    def test_scalar_minus_array(self):
+        t1 = Tensor([1, 2, 4])
+        t2 = Tensor(1)
+        result = t1 - t2
+        assert result.shape == (3,)
+        assert np.array_equal(result.data, np.array([0, 1, 3]))
+
+    def test_subtraction_broadcast_compatible_shapes(self):
+        t1 = Tensor([[10, 20], [30, 40]])
+        t2 = Tensor([1, 2])
+        result = t1 - t2
+        assert result.shape == (2, 2)
+        assert np.array_equal(result.data, np.array([[9, 18], [29, 38]]))
+
+    def test_subtraction_broadcast_incompatible_shapes(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([[10, 20], [30, 40]])
+        with pytest.raises(ValueError):
+            result = t1 - t2
+
+class TestTensorMultiplication:
+    """Test Tensor Multiplication"""
+
+    def test_scalar_times_array_multiplication(self):
+        t1 = Tensor(4)
+        t2 = Tensor([[1, 2, 3], [4, 5, 6]])
+        result = t1 * t2
+        assert result.shape == (2, 3)
+        assert np.array_equal(result.data, np.array([[4, 8, 12], [16, 20, 24]]))
+
+    def test_same_shape_array_multiplication(self):
+        t1 = Tensor([1, 2, 3, 4, 5])
+        t2 = Tensor([1, 2, 3, 4, 5])
+        result = t1 * t2
+        assert result.shape == (5, )
+        assert np.array_equal(result.data, np.array([1, 4, 9, 16, 25]))
+
+    def test_broadcastable_shape_array_multiplication(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        result = t1 * t2
+        assert result.shape == (3,3)
+        assert np.array_equal(result.data, np.array([[1, 4, 9] , [4, 10, 18], [7, 16, 27]]))
+
+    def test_non_broadcastable_shape_array_multiplication(self):
+        t1 = Tensor([1, 2])
+        t2 = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        with pytest.raises(ValueError):
+            result = t1 * t2
+
+class TestTensorDivision:
+    """Test Tensor Division"""
+
+    def test_scalar_divides_array(self):
+        t1 = Tensor(2)
+        t2 = Tensor([[2, 2, 3], [4, 5, 6]])
+        result = t2 / t1
+        assert result.shape == (2, 3)
+        assert np.allclose(result.data, np.array([[1, 1, 3/2], [2, 5/2, 3]]))
+
+    def test_same_shape_array_division(self):
+        t1 = Tensor([1, 2, 3, 4, 5])
+        t2 = Tensor([3, 4, 5, 6, 7])
+        result = t1 / t2
+        assert result.shape == (5, )
+        assert np.allclose(result.data, np.array([1/3, 0.5, 3/5, 2/3, 5/7]))
+
+    def test_broadcastable_shape_array_division(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        result = t2 / t1
+        assert result.shape == (3,3)
+        assert np.allclose(result.data, np.array([[1, 1, 1] , [4, 5/2, 2], [7, 4, 3]]))
+
+    def test_non_broadcastable_shape_array_division(self):
+        t1 = Tensor([1, 2])
+        t2 = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        with pytest.raises(ValueError):
+            result = t1 / t2
+    

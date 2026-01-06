@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prisml"
+version = "0.1.0"
+description = "A from-scratch machine learning library in Python"
+authors = [{ name = "Tiago Santos" }]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.24"]
+
+[tool.setuptools.packages.find]
+include = ["prisml*"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
