@@ -17,6 +17,7 @@ class Tensor:
     allows backpropagation to compute gradients.
     This allows for backpropagation, where we can automatically compute gradients.
 
+    #TODO: self.grad, not implemented yet
     self.data is the actual numerical values of the Tensor.
     self.grad is the accumulated gradient of the loss with respect to this Tensor. (dLoss/dThisTensor).
         Used by optimizers to update self.data.
@@ -24,9 +25,9 @@ class Tensor:
     """
     def __init__(self, data: Union[np.ndarray, list, int, float], requires_grad: bool = False):
         self.requires_grad = requires_grad
-        self.grad = None #TODO
-        if isinstance(data, Tensor):
+        if isinstance(data, Tensor): #copy attributes from the other tensor
             self.data = data.data.astype(np.float32, copy=True)
+            self.requires_grad = data.requires_grad
         else:
             self.data = np.array(data, dtype=np.float32)
 
@@ -55,13 +56,21 @@ class Tensor:
         return Tensor(self.data / other)
 
     def __matmul__(self, other): # t1 @ t2 matrix multiplication
-        #for 0-D, just multiples the values, same as __mul__
-        #for 1-D, dot product of both arrays
-        #for 2-D, must match shapes (n, k) @ (k, m) -> (n, m)
-        #for N-D, tensors of shapes (..., n, k) @ (..., k, m) -> (..., n, m) as long as (...) matches or broadcasts
+        # for 0-D, just multiples the values, same as __mul__
+        # for 1-D, dot product of both arrays
+        # for 2-D, must match shapes (n, k) @ (k, m) -> (n, m)
+        # for N-D, tensors of shapes (..., n, k) @ (..., k, m) -> (..., n, m) as long as (...) matches or broadcasts
         if isinstance(other, Tensor):
             return Tensor(self.data @ other.data)
         return Tensor(self.data @ other)
+
+    def __pow__(self, power): # t1 ** n
+        #TODO: Right now, we lose requires_grad, but in the future (when we implement grad) this needs to be updated
+        return Tensor(self.data ** power)
+
+    def __neg__(self):
+        return Tensor(-1 * self.data)
+
 
 
     @property

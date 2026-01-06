@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+from math import isclose
 from prisml import Tensor
 
 FLOAT_ARRAY = np.array([1.5, -2.0, 3.14159, 0.0])
@@ -300,3 +301,73 @@ class TestTensorMatrixMultiplication:
         # Verify against NumPy
         expected = np.matmul(t1.data, t2.data)
         assert np.allclose(result.data, expected)
+
+class TestTensorPowers():
+    """Test Tensor Powers"""
+
+    def test_pow_scalar_tensor(self):
+        t = Tensor(4)
+
+        result = t ** 2
+
+        assert result.shape == ()
+        assert result.data == 16
+
+    def test_pow_scalar_float_tensor(self):
+        t = Tensor(1 / 3)
+
+        result = t ** 2
+
+        assert result.shape == ()
+        assert np.isclose(result.data.item(), np.float32(1 / 3) ** 2)
+
+    def test_pow_vector_tensor(self):
+        t = Tensor([1, 2, 3, 4])
+
+        result = t ** 2
+
+        assert result.shape == (4, )
+        assert np.array_equal(result.data, np.array([1, 4, 9, 16]))
+
+    def test_pow_3d_matrix_tensor(self):
+        t = Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+
+        result = t ** 2
+
+        assert result.shape == (1, 3, 3)
+        assert np.array_equal(result.data, np.array([[[1, 4, 9], [16, 25, 36], [49, 64, 81]]]))
+
+class TestTensorNeg():
+    """Test Tensor Sign Inversion"""
+
+    def test_neg_scalar_tensor(self):
+        t = Tensor(2)
+
+        result = -t
+
+        assert result.shape == ()
+        assert result.data == -2
+
+    def test_pow_scalar_float_tensor(self):
+        t = Tensor(1 / 3)
+
+        result = -t
+
+        assert result.shape == ()
+        assert np.isclose(result.data.item(), -1 * np.float32(1 / 3))
+
+    def test_pow_vector_tensor(self):
+        t = Tensor([1, 2, 3, 4])
+
+        result = -t
+
+        assert result.shape == (4, )
+        assert np.array_equal(result.data, np.array([-1, -2, -3, -4]))
+
+    def test_pow_3d_matrix_tensor(self):
+        t = Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+
+        result = -t
+
+        assert result.shape == (1, 3, 3)
+        assert np.array_equal(result.data, np.array([[[-1, -2, -3], [-4, -5, -6], [-7, -8, -9]]]))
