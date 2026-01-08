@@ -115,3 +115,56 @@ class Tensor:
         )
         return f"Tensor(\n{s},\n\n dtype={self.data.dtype}, shape={self.data.shape}, requires_grad{self.requires_grad})"
 
+    def __str__(self): #str(t)
+        return self.__repr__(self)
+
+    def copy(self):
+        return Tensor(self)
+
+    def to_numpy(self):
+        return np.array(self.data)
+
+
+
+
+    def __eq__(self, other):
+        if isinstance(other, Tensor):
+            other_data = other.data
+        else:
+            other_data = other
+        return self.data == other_data #returns element wise comparison
+
+    def __ne__(self, other):
+        if isinstance(other, Tensor):
+            other_data = other.data
+        else:
+            other_data = other
+        return self.data != other_data
+
+    def __lt__(self, other):
+        if isinstance(other, Tensor):
+            other_data = other.data
+        else:
+            other_data = other
+        return self.data < other_data # returns boolean array with element-wise comparison
+    
+    def __le__(self, other):
+        if isinstance(other, Tensor):
+            other_data = other.data
+        else:
+            other_data = other
+        return self.data <= other_data
+
+    def __gt__(self, other):
+        if isinstance(other, Tensor):
+            other_data = other.data
+        else:
+            other_data = other
+        return self.data > other_data
+
+    def __ge__(self, other):
+        if isinstance(other, Tensor):
+            other_data = other.data
+        else:
+            other_data = other
+        return self.data >= other_data

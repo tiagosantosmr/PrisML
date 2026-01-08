@@ -479,3 +479,151 @@ class TestTensorRightTrueDivision:
         result = -2 / t
         assert result.shape == (3, )
         assert np.allclose(result.data, np.array([-2, -1, -2 / 3]))
+
+class TestTensorCopy:
+    def test_tensor_copying(self):
+        t1 = Tensor([1, 2, 3], requires_grad=True)
+        t2 = t1.copy()
+        
+        assert t1 is not t2 #they are different objects
+        assert t1.data is not t2.data #with different data objects
+    
+        assert np.array_equal(t1.data, t2.data) #but have the same values
+        assert t1.requires_grad == t2.requires_grad
+        
+        #mutating t2.data does not affect t1.data
+        t2.data[0] = 999
+        assert t1.data[0] == 1
+        assert t2.data[0] == 999
+
+class TestTensorToNumpy():
+    def test_to_numpy(self):
+        t1 = Tensor([1.5, 2.5, 3.5])
+        arr = t1.to_numpy()
+
+        assert isinstance(arr, np.ndarray)
+        assert np.array_equal(arr, np.array([1.5, 2.5, 3.5], dtype=np.float32))
+        assert arr.shape == t1.shape
+        assert arr.dtype == np.float32
+
+
+    def test_to_numpy_scalar(self):
+        t = Tensor(5.0)
+        arr = t.to_numpy()
+
+        assert isinstance(arr, np.ndarray)
+        assert arr.shape == ()
+        assert arr.item() == 5.0
+
+
+    def test_to_numpy_multidimensional(self):
+        t = Tensor([[1, 2], [3, 4]])
+        arr = t.to_numpy()
+
+        assert isinstance(arr, np.ndarray)
+        assert arr.shape == (2, 2)
+        assert np.array_equal(arr, np.array([[1, 2], [3, 4]], dtype=np.float32))
+
+class TestTensorEqual():
+    def test_eq_tensor_vs_tensor(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([1, 2, 3])
+        result = t1 == t2
+        assert np.array_equal(result, np.array([True, True, True]))
+
+    def test_eq_tensor_vs_tensor_not_equal(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([1, 2, 4])
+        result = t1 == t2
+        assert np.array_equal(result, np.array([True, True, False]))
+
+    def test_eq_tensor_vs_scalar(self):
+        t = Tensor([1, 2, 3])
+        result = t == 2
+        assert np.array_equal(result, np.array([False, True, False]))
+
+    def test_ne_tensor_vs_tensor(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([1, 2, 3])
+        result = t1 != t2
+        assert np.array_equal(result, np.array([False, False, False]))
+
+    def test_ne_tensor_vs_tensor_not_equal(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([1, 2, 4])
+        result = t1 != t2
+        assert np.array_equal(result, np.array([False, False, True]))
+
+    def test_ne_tensor_vs_scalar(self):
+        t = Tensor([1, 2, 3])
+        result = t != 2
+        assert np.array_equal(result, np.array([True, False, True]))
+
+
+class TestTensorLessThan():
+    def test_lt_tensor_vs_tensor(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([2, 2, 2])
+        result = t1 < t2
+        assert np.array_equal(result, np.array([True, False, False]))
+
+    def test_lt_tensor_vs_scalar(self):
+        t = Tensor([1, 2, 3])
+        result = t < 2
+        assert np.array_equal(result, np.array([True, False, False]))
+
+    def test_lt_scalar(self):
+        t = Tensor(1.5)
+        result = t < 2.0
+        assert result.item() == True
+
+class TestTensorLessThanOrEqualTo():
+    def test_le_tensor_vs_tensor(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([2, 2, 2])
+        result = t1 <= t2
+        assert np.array_equal(result, np.array([True, True, False]))
+
+    def test_le_tensor_vs_scalar(self):
+        t = Tensor([1, 2, 3])
+        result = t <= 2
+        assert np.array_equal(result, np.array([True, True, False]))
+
+    def test_le_scalar(self):
+        t = Tensor(2.0)
+        result = t <= 2.0
+        assert result.item() == True
+
+class TestTensorGreaterThan():
+    def test_gt_tensor_vs_tensor(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([2, 2, 2])
+        result = t1 > t2
+        assert np.array_equal(result, np.array([False, False, True]))
+
+    def test_gt_tensor_vs_scalar(self):
+        t = Tensor([1, 2, 3])
+        result = t > 2
+        assert np.array_equal(result, np.array([False, False, True]))
+
+    def test_gt_scalar(self):
+        t = Tensor(3.0)
+        result = t > 2.0
+        assert result.item() == True
+
+class TestTensorGreaterThanOrEqualTo():
+    def test_ge_tensor_vs_tensor(self):
+        t1 = Tensor([1, 2, 3])
+        t2 = Tensor([2, 2, 2])
+        result = t1 >= t2
+        assert np.array_equal(result, np.array([False, True, True]))
+
+    def test_ge_tensor_vs_scalar(self):
+        t = Tensor([1, 2, 3])
+        result = t >= 2
+        assert np.array_equal(result, np.array([False, True, True]))
+
+    def test_ge_scalar(self):
+        t = Tensor(2.0)
+        result = t >= 2.0
+        assert result.item() == True
