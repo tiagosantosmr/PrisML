@@ -59,7 +59,13 @@ class TestTensorShape:
 class TestTensorAddition:
     """Test Tensor Addition"""
 
-    def test_scalar_tensor_addition(self):
+    def test_scalar_plus_tensor_addition(self):
+        t = Tensor(1)
+        result = t + 3
+        assert result.shape == ()
+        assert result.data == 4
+
+    def test_scalar_tensors_addition(self):
         t1 = Tensor(1)
         t2 = Tensor(2)
         result = t1 + t2
@@ -116,6 +122,12 @@ class TestTensorAddition:
 
 class TestTensorSubtraction:
     """Test Tensor Subtraction"""
+
+    def test_scalar_minus_tensor_subtraction(self):
+        t = Tensor(10)
+        result = t - 2
+        assert result.shape == ()
+        assert result.data == 8
 
     def test_scalar_tensor_subtraction(self):
         t1 = Tensor(10)
@@ -176,6 +188,12 @@ class TestTensorMultiplication:
     """Test Tensor Multiplication"""
 
     def test_scalar_times_array_multiplication(self):
+        t = Tensor([[1, 2, 3], [4, 5, 6]])
+        result = 4 * t
+        assert result.shape == (2, 3)
+        assert np.array_equal(result.data, np.array([[4, 8, 12], [16, 20, 24]]))
+
+    def test_scalar_times_array_multiplication(self):
         t1 = Tensor(4)
         t2 = Tensor([[1, 2, 3], [4, 5, 6]])
         result = t1 * t2
@@ -206,6 +224,12 @@ class TestTensorDivision:
     """Test Tensor Division"""
 
     def test_scalar_divides_array(self):
+        t = Tensor([[2, 2, 3], [4, 5, 6]])
+        result = t / 2
+        assert result.shape == (2, 3)
+        assert np.allclose(result.data, np.array([[1, 1, 3/2], [2, 5/2, 3]]))
+
+    def test_scalar_tensor_divides_array(self):
         t1 = Tensor(2)
         t2 = Tensor([[2, 2, 3], [4, 5, 6]])
         result = t2 / t1
@@ -371,3 +395,87 @@ class TestTensorNeg():
 
         assert result.shape == (1, 3, 3)
         assert np.array_equal(result.data, np.array([[[-1, -2, -3], [-4, -5, -6], [-7, -8, -9]]]))
+
+class TestTensorRightAddition:
+    """Test Tensor Right Addition"""
+
+    def test_scalar_plus_tensor_right_addition(self):
+        t = Tensor(2)
+        result = 4 + t
+        assert result.shape == ()
+        assert result.data == 6
+
+    def test_scalar_plus_array_tensor_right_addition(self):
+        t = Tensor([1, 2, 3])
+        result = 4 + t
+        assert result.shape == (3, )
+        assert np.array_equal(result.data, np.array([5, 6, 7]))
+
+    def test_numpy_vector_plus_tensor_right_addition(self):
+        t = Tensor(np.array([1, 2, 3]))
+        result = 4 + t
+        assert result.shape == (3, )
+        assert np.array_equal(result.data, np.array([5, 6, 7]))
+
+class TestTensorRightSubtraction:
+    """Test Tensor Right Subtraction"""
+
+    def test_scalar_plus_tensor_right_subtraction(self):
+        t = Tensor(2)
+        result = 4 - t
+        assert result.shape == ()
+        assert result.data == 2
+
+    def test_scalar_plus_array_tensor_right_subtraction(self):
+        t = Tensor([1, 2, 3])
+        result = 4 - t
+        assert result.shape == (3, )
+        assert np.array_equal(result.data, np.array([3, 2, 1]))
+
+    def test_numpy_vector_plus_tensor_right_subtraction(self):
+        t = Tensor(np.array([1, 2, 3]))
+        result = 4 - t
+        assert result.shape == (3, )
+        assert np.array_equal(result.data, np.array([3, 2, 1]))
+
+class TestTensorRightMultiplication:
+    """Test Tensor Right Multiplation"""
+
+    def test_scalar_tensor_scalar_right_multiplication(self):
+        t = Tensor(4)
+        result = 2 * t
+        assert result.shape == ()
+        assert result.data == 8
+
+    def test_scalar_tensor_array_right_multiplication(self):
+        t = Tensor([1, 2, 3])
+        result = 4 * t
+        assert result.shape == (3,)
+        assert np.array_equal(result.data, [4, 8, 12])
+
+    def test_scalar_tensor_numpy_array_right_multiplication(self):
+        t = Tensor(np.array([1, 2, 3]))
+        result = -2 * t
+        assert result.shape == (3, )
+        assert np.array_equal(result.data, np.array([-2, -4, -6]))
+
+class TestTensorRightTrueDivision:
+    """Test Tensor Right True Division"""
+
+    def test_scalar_tensor_scalar_right_division(self):
+        t = Tensor(4)
+        result = 8 / t
+        assert result.shape == ()
+        assert result.data == 2
+
+    def test_scalar_tensor_array_right_division(self):
+        t = Tensor([1, 2, 3])
+        result = 4 / t
+        assert result.shape == (3,)
+        assert np.allclose(result.data, [4, 2, 4 / 3])
+
+    def test_scalar_tensor_numpy_array_right_division(self):
+        t = Tensor(np.array([1, 2, 3]))
+        result = -2 / t
+        assert result.shape == (3, )
+        assert np.allclose(result.data, np.array([-2, -1, -2 / 3]))

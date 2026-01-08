@@ -31,10 +31,6 @@ class Tensor:
         else:
             self.data = np.array(data, dtype=np.float32)
 
-    def __repr__(self): # print(t1)
-        #TODO: customize to print self.data with spaces before each line (to match "Tensor data = ") so as to make it more readable
-        return f"Tensor data = {self.data}   requires_grad={self.requires_grad}"
-
     def __add__(self, other): # t1 + t2
         if isinstance(other, Tensor):
             return Tensor(self.data + other.data) #NumPy automatically broadcasts compatible shapes
@@ -64,16 +60,58 @@ class Tensor:
             return Tensor(self.data @ other.data)
         return Tensor(self.data @ other)
 
-    def __pow__(self, power): # t1 ** n
+    def __pow__(self, power): # t ** n
         #TODO: Right now, we lose requires_grad, but in the future (when we implement grad) this needs to be updated
         return Tensor(self.data ** power)
 
-    def __neg__(self):
+    def __neg__(self): # -t
         return Tensor(-1 * self.data)
+
+    def __radd__(self, other): # other + t
+        if isinstance(other, Tensor):
+            return Tensor(other.data + self.data)
+        return Tensor(other + self.data)
+
+    def __rsub__(self, other): # other - t
+        if isinstance(other, Tensor):
+            return Tensor(other.data - self.data)
+        return Tensor(other - self.data)
+
+    def __rmul__(self, other): # other * t
+        if isinstance(other, Tensor):
+            return Tensor(other.data * self.data)
+        return Tensor(other * self.data)
+
+    def __rtruediv__(self, other): # other / t
+        if isinstance(other, Tensor):
+            return Tensor(other.data / self.data)
+        return Tensor(other / self.data)
+
 
 
 
     @property
     def shape(self):
         return self.data.shape
-        
+
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+
+    @property
+    def dtype(self):
+        return self.data.dtype
+
+
+    def __repr__(self): # print(t)
+        s = np.array2string(
+            self.data,
+            separator=', ',
+            threshold=1000,   # when to start using "..."
+        )
+        return f"Tensor(\n{s},\n\n dtype={self.data.dtype}, shape={self.data.shape}, requires_grad{self.requires_grad})"
+
