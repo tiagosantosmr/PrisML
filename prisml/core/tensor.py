@@ -31,6 +31,8 @@ class Tensor:
         else:
             self.data = np.array(data, dtype=np.float32)
 
+    #Basic arithmetic operators
+
     def __add__(self, other): # t1 + t2
         if isinstance(other, Tensor):
             return Tensor(self.data + other.data) #NumPy automatically broadcasts compatible shapes
@@ -87,8 +89,7 @@ class Tensor:
             return Tensor(other.data / self.data)
         return Tensor(other / self.data)
 
-
-
+    #Properties
 
     @property
     def shape(self):
@@ -106,6 +107,7 @@ class Tensor:
     def dtype(self):
         return self.data.dtype
 
+    #String/Utility operators
 
     def __repr__(self): # print(t)
         s = np.array2string(
@@ -125,7 +127,7 @@ class Tensor:
         return np.array(self.data)
 
 
-
+    #Comparation operators
 
     def __eq__(self, other):
         if isinstance(other, Tensor):
@@ -168,3 +170,19 @@ class Tensor:
         else:
             other_data = other
         return self.data >= other_data
+
+    #Aggregate methods
+    def sum(self, axis = None, keepdims = False, dtype = None): # t1.sum()
+        result_data = self.data.sum(axis = axis, keepdims = keepdims, dtype = dtype)
+        return Tensor(result_data, requires_grad=self.requires_grad)
+
+    def item(self):
+        #This is not an aggregate method, but it is used in combination with aggregate methods
+        #to get the scalar value.
+        if self.shape != ():
+            raise ValueError("Can only call .item() on scalar tensors")
+        return self.data.item()
+
+    def mean(self, axis = None, keepdims = False):
+        result_data = self.data.mean(axis = axis, keepdims = keepdims)
+        return Tensor(result_data, requires_grad = self.requires_grad)

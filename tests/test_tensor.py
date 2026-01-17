@@ -627,3 +627,62 @@ class TestTensorGreaterThanOrEqualTo():
         t = Tensor(2.0)
         result = t >= 2.0
         assert result.item() == True
+
+class TestTensorSumMethod():
+    def test_sum_all(self):
+        t = Tensor([1, 2, 3])
+        result = t.sum()
+        assert np.array_equal(result.data, np.array(6, dtype=np.float32))
+
+    def test_sum_axis_0(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.sum(axis=0)
+        assert np.array_equal(result.data, np.array([4, 6], dtype=np.float32))
+
+    def test_sum_keepdims(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.sum(axis=1, keepdims=True)
+        assert result.shape == (2, 1)
+        assert np.array_equal(result.data, np.array([[3], [7]], dtype=np.float32))
+
+    def test_sum_scalar(self):
+        t = Tensor(5.0)
+        result = t.sum()
+        assert result.data.item() == 5.0
+
+    def test_sum_requires_grad(self):
+        t = Tensor([1, 2], requires_grad=True)
+        result = t.sum()
+        assert result.requires_grad == True
+
+class TestTensorMeanMethod():
+    def test_mean_all(self):
+        t = Tensor([1, 2, 3])
+        result = t.mean()
+        assert np.array_equal(result.data, np.array(2.0, dtype=np.float32))
+
+    def test_mean_axis_0(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.mean(axis=0)
+        assert np.array_equal(result.data, np.array([2.0, 3.0], dtype=np.float32))
+
+    def test_mean_axis_1(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.mean(axis=1)
+        assert np.array_equal(result.data, np.array([1.5, 3.5], dtype=np.float32))
+
+    def test_mean_keepdims(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.mean(axis=1, keepdims=True)
+        assert result.shape == (2, 1)
+        assert np.array_equal(result.data, np.array([[1.5], [3.5]], dtype=np.float32))
+
+    def test_mean_scalar(self):
+        t = Tensor(5.0)
+        result = t.mean()
+        assert result.data.item() == 5.0
+
+    def test_mean_requires_grad(self):
+        t = Tensor([1, 2], requires_grad=True)
+        result = t.mean()
+        assert result.requires_grad == True
