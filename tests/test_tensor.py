@@ -686,3 +686,80 @@ class TestTensorMeanMethod():
         t = Tensor([1, 2], requires_grad=True)
         result = t.mean()
         assert result.requires_grad == True
+
+
+class TestTensorStdMethod():
+    def test_std_all(self):
+        t = Tensor([1, 2, 3], requires_grad=True)
+        result = t.std()
+        expected = np.array([1, 2, 3], dtype=np.float32).std()
+        assert np.isclose(result.data.item(), expected)
+        assert result.requires_grad is True
+
+    def test_std_axis_0(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.std(axis=0)
+        expected = np.array([[1, 2], [3, 4]], dtype=np.float32).std(axis=0)
+        assert np.allclose(result.data, expected)
+
+    def test_std_keepdims(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.std(axis=1, keepdims=True)
+        expected = np.array([[1, 2], [3, 4]], dtype=np.float32).std(axis=1, keepdims=True)
+        assert result.shape == (2, 1)
+        assert np.allclose(result.data, expected)
+
+class TestTensorVarMethod():
+    def test_var_all(self):
+        t = Tensor([1, 2, 3], requires_grad=True)
+        result = t.var()
+        expected = np.array([1, 2, 3], dtype=np.float32).var()
+        assert np.isclose(result.data.item(), expected)
+        assert result.requires_grad is True
+
+    def test_var_axis_0(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.var(axis=0)
+        expected = np.array([[1, 2], [3, 4]], dtype=np.float32).var(axis=0)
+        assert np.allclose(result.data, expected)
+
+    def test_var_keepdims(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.var(axis=1, keepdims=True)
+        expected = np.array([[1, 2], [3, 4]], dtype=np.float32).var(axis=1, keepdims=True)
+        assert result.shape == (2, 1)
+        assert np.allclose(result.data, expected)
+
+class TestTensorMinMethod():
+    def test_min_all(self):
+        t = Tensor([3, 1, 2])
+        result = t.min()
+        assert result.data.item() == 1.0
+
+    def test_min_axis_0(self):
+        t = Tensor([[3, 1], [2, 4]])
+        result = t.min(axis=0)
+        assert np.array_equal(result.data, np.array([2.0, 1.0]))
+
+    def test_min_keepdims(self):
+        t = Tensor([[3, 1], [2, 4]])
+        result = t.min(axis=1, keepdims=True)
+        assert result.shape == (2, 1)
+        assert np.array_equal(result.data, np.array([[1.0], [2.0]]))
+
+class TestTensorMaxMethod():
+    def test_max_all(self):
+        t = Tensor([3, 1, 2])
+        result = t.max()
+        assert result.data.item() == 3.0
+
+    def test_max_axis_0(self):
+        t = Tensor([[3, 1], [2, 4]])
+        result = t.max(axis=0)
+        assert np.array_equal(result.data, np.array([3.0, 4.0]))
+
+    def test_max_keepdims(self):
+        t = Tensor([[3, 1], [2, 4]])
+        result = t.max(axis=1, keepdims=True)
+        assert result.shape == (2, 1)
+        assert np.array_equal(result.data, np.array([[3.0], [4.0]]))

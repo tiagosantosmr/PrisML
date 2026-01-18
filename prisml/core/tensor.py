@@ -186,3 +186,19 @@ class Tensor:
     def mean(self, axis = None, keepdims = False):
         result_data = self.data.mean(axis = axis, keepdims = keepdims)
         return Tensor(result_data, requires_grad = self.requires_grad)
+
+    def std(self, axis = None, keepdims = False): # Sum(0 <= i < n)[( (self.mean(axis = axis) - Xi)**2 ) / n]
+        result_data = self.data.std(axis=axis, keepdims=keepdims)
+        return Tensor(result_data, requires_grad=self.requires_grad)
+
+    def var(self, axis = None, keepdims = False): # t1.std() ** 2
+        result_data = self.data.var(axis=axis, keepdims=keepdims)
+        return Tensor(result_data, requires_grad=self.requires_grad)
+
+    def min(self, axis = None, keepdims = False):
+        result_data = self.data.min(axis=axis, keepdims=keepdims)
+        return Tensor(result_data, requires_grad=self.requires_grad)
+
+    def max(self, axis = None, keepdims = False):
+        result_data = self.data.max(axis=axis, keepdims=keepdims)
+        return Tensor(result_data, requires_grad=self.requires_grad)
