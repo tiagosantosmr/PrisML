@@ -202,3 +202,14 @@ class Tensor:
     def max(self, axis = None, keepdims = False):
         result_data = self.data.max(axis=axis, keepdims=keepdims)
         return Tensor(result_data, requires_grad=self.requires_grad)
+
+    #Reshaping methods
+    def reshape(self, *shape):
+        return Tensor(self.data.reshape(*shape), requires_grad=self.requires_grad)
+
+    def self_reshape(self, *shape):
+        self.data = self.data.reshape(*shape)
+        return self
+
+    def flatten(self):
+        return Tensor(self.data.flatten(), requires_grad = self.requires_grad)

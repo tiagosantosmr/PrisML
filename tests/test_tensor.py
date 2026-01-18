@@ -763,3 +763,46 @@ class TestTensorMaxMethod():
         result = t.max(axis=1, keepdims=True)
         assert result.shape == (2, 1)
         assert np.array_equal(result.data, np.array([[3.0], [4.0]]))
+
+class TestTensorReshapeMethod():
+    def test_reshape_1d_to_2d(self):
+        t = Tensor([1, 2, 3, 4, 5, 6])
+        result = t.reshape(2, 3)
+        assert result.shape == (2, 3)
+        assert np.array_equal(result.data.flatten(), np.array([1, 2, 3, 4, 5, 6], dtype=np.float32))
+
+    def test_reshape_infer_dimension(self):
+        t = Tensor([1, 2, 3, 4])
+        result = t.reshape(2, -1)
+        assert result.shape == (2, 2)
+
+    def test_reshape_scalar(self):
+        t = Tensor(5.0)
+        result = t.reshape(1)
+        assert result.shape == (1,)
+        assert result.data.item() == 5.0
+
+
+
+class TestTensorFlattenMethod():
+    def test_flatten_2d_to_1d(self):
+        t = Tensor([[1, 2], [3, 4]])
+        result = t.flatten()
+        assert result.shape == (4,)
+        assert np.array_equal(result.data, np.array([1, 2, 3, 4], dtype=np.float32))
+
+    def test_flatten_scalar(self):
+        t = Tensor(5.0)
+        result = t.flatten()
+        assert result.shape == (1, )
+        assert result.data.item() == 5.0
+
+    def test_flatten_already_1d(self):
+        t = Tensor([1, 2, 3])
+        result = t.flatten()
+        assert np.array_equal(result.data, t.data)
+
+    def test_reshape_requires_grad(self):
+        t = Tensor([1, 2, 3], requires_grad=True)
+        result = t.reshape(1, 3)
+        assert result.requires_grad is True
